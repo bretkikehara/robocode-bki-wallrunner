@@ -1,0 +1,28 @@
+<project name="verify" default="verify">
+  <description>
+    Makes sure system compiles and passes checkstyle, findbugs, and pmd.  
+  </description>
+
+  <property name="pmd.failonerror" value="true" />
+  <property name="findbugs.failOnError" value="true" />
+  <property name="checkstyle.failOnViolation" value="true" />
+  <property name="junit.haltonfailure" value="true" />
+  <property name="javadoc.failonerror" value="true" />
+
+  <import file="build.xml" />
+  <import file="checkstyle.build.xml" />
+  <import file="dependencyfinder.build.xml" />
+  <import file="dist.build.xml" />
+  <import file="emma.build.xml" />
+  <import file="findbugs.build.xml" />
+  <import file="javadoc.build.xml" />
+  <import file="javancss.build.xml" />
+  <import file="pmd.build.xml" />
+  <import file="sclc.build.xml" />
+  <import file="junit.build.xml" />
+
+  <target name="verify" depends="compile, junit.tool, checkstyle.tool, javadoc.tool, pmd.tool, findbugs.tool" description="Verifies system.">
+    <fail message="FindBugs reported warnings." if="findbugs.warningsfound" />
+  </target>
+
+</project>

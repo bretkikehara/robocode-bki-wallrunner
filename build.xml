@@ -1,0 +1,75 @@
+<project name="robocode-bik-wallrunner" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <description>
+  Top-level build file for the Robocode BIK WallRunner system. 
+  The default target compiles the system.
+  </description>
+
+  <import file="common.build.xml" />
+  
+  <property name="junit.version" value="4.8.2"/>
+  <property name="robocode.version" value="1.7.2.1"/>
+
+  <target name="install-libraries" description="Install JUnit and Robocode service libraries.">
+    <ivy:retrieve organisation="org.junit" module="junit" revision="${junit.version}" 
+      pattern="${lib.dir}/junit/[artifact].[ext]" inline="true" conf="default" 
+      log="download-only" transitive="false" type="jar" />
+    
+    <!-- Define the path to the JUnit jar file needed to compile/test these sources. -->
+    <path id="junit.path" location="${lib.dir}/junit/junit.jar" />
+
+    <ivy:retrieve module="robocode" organisation="net.sourceforge.robocode" revision="${robocode.version}" 
+      pattern="${lib.dir}/robocode/[artifact].[ext]" inline="true" log="download-only" conf="scripts,sources,javadocs"/>
+
+    <ivy:retrieve module="robocode" organisation="net.sourceforge.robocode" revision="${robocode.version}" 
+      pattern="${lib.dir}/robocode/battles/[artifact].[ext]" inline="true" log="download-only" conf="battles"/>
+
+    <ivy:retrieve module="robocode" organisation="net.sourceforge.robocode" revision="${robocode.version}" 
+      pattern="${lib.dir}/robocode/robots/sample/[artifact].[ext]" inline="true" log="download-only" conf="sample-robots"/>
+ 
+    <ivy:retrieve module="robocode" organisation="net.sourceforge.robocode" revision="${robocode.version}" 
+      pattern="${lib.dir}/robocode/templates/[artifact].[ext]" inline="true" log="download-only" conf="templates"/>
+
+    <ivy:retrieve module="robocode" organisation="net.sourceforge.robocode" revision="${robocode.version}" 
+      pattern="${lib.dir}/robocode/libs/[artifact].[ext]" inline="true" log="download-only" conf="libs"/>
+
+    <!-- Define the path to the Robocode jar files needed to compile/test/run these sources. -->
+    <path id="robocode.path">
+        <fileset dir="${lib.dir}/robocode/libs">
+          <include name="robocode.jar" />
+          <include name="robocode.testing.jar" />
+        </fileset>
+      </path>
+  </target>
+
+  <!-- Basic properties for this system. -->
+  <property name="system.name" value="robocode-bik-wallrunner" />
+  <property name="majorVersionNumber" value="1" />
+  <property name="minorVersionNumber" value="0" />
+  <tstamp>
+    <format property="DAYSTAMP" pattern="Mdd" />
+  </tstamp>
+  <property name="version" value="${majorVersionNumber}.${minorVersionNumber}.${DAYSTAMP}" />
+
+
+  <!-- The compile classpath is useful to many tools. -->
+  <path id="compile.classpath">
+    <path refid="junit.path" />
+    <path refid="robocode.path" />
+  </path>
+
+  <target name="compile" depends="install-ivy, install-libraries" description="Compiles the code.">
+    <!-- Now compile the code into build/classes -->
+    <mkdir dir="${build.dir}/classes" />
+    <javac srcdir="${src.dir}" destdir="${build.dir}/classes" debug="on" includeAntRuntime="no">
+      <classpath refid="compile.classpath" />
+      <compilerarg value="-Xlint:all" />
+      <compilerarg value="-Werror" />
+    </javac>
+    <copy todir="${lib.dir}/robocode/robots">
+      <fileset dir="${build.dir}/classes">
+        <include name="**/WallRunner.*"/>
+      </fileset>
+    </copy>
+  </target>
+
+</project>

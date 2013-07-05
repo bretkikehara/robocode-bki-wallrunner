@@ -1,0 +1,57 @@
+<project name="jar" default="jar" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <description>
+  Provides the targets for building jar files. 
+  </description>
+
+  <import file="build.xml" />
+  <property name="tmp.dir" location="${basedir}/tmp" />
+  <property name="tmp.lib.dir" location="${basedir}/tmp-lib" />
+  <property name="build.jar.dir" location="${build.dir}/jar" />
+  
+  <!-- Info for robot. robot.author.id must also be the package where the robot is located. -->
+  <property name="robot.author.name" value="Bret Ikehara"/>
+  <property name="robot.author.id" value="bik"/>
+  <property name="robot.name" value="WallRunner"/>
+  <property name="robot.webpage" value="http://blog.bikehara.com/2010/09/robocode-competitive-robot.html"/>
+  <property name="robot.description" value="Moves to closes right or left wall, then moves up and down wall and fires at opponent."/>
+  <property name="robocode.version" value=" 1.7.2.1"/>
+
+  <delete dir="${build.jar.dir}" quiet="true" />
+  
+  
+
+  <target name="jar" depends="compile" description="Create pmj-dacruzer.jar">
+    <!-- Define the directories and distribution name -->
+    <mkdir dir="${tmp.dir}" />
+    <mkdir dir="${build.jar.dir}" />
+    
+    <!-- Copy over java and class files. -->
+    <copy todir="${tmp.dir}">
+      <fileset dir="${basedir}/build/classes" />
+      <fileset dir="${basedir}/src" />
+    </copy>
+    
+    <!-- Create the robot properties file. -->
+    <propertyfile file="${tmp.dir}/${robot.author.id}/${robot.name}.properties">
+      <entry key="robot.webpage" value="${robot.webpage}"/>
+      <entry key="robot.description" value="${robot.description}"/>
+      <entry key="robot.version" value="${version}" />
+      <entry key="robot.author.name" value="${robot.author.name}"/>
+      <entry key="robot.classname" value="${robot.author.id}.${robot.name}"/>
+      <entry key="robocode.version" value="${robocode.version}" />
+    </propertyfile>
+    <!-- Echo the contents of the file so that the developer can proof-read for errors. -->
+    <concat>
+      <fileset file="${tmp.dir}/${robot.author.id}/${robot.name}.properties"/>
+    </concat>
+
+    <jar destfile="${build.jar.dir}/${robot.author.id}.${robot.name}_${version}.jar" basedir="${tmp.dir}">
+      <manifest>
+        <attribute name="robots" value="${robot.name}" />
+      </manifest>
+    </jar>
+    <delete dir="${tmp.dir}" />
+  </target>
+
+</project>
+

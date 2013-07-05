@@ -1,0 +1,39 @@
+<project name="javancss" default="javancss" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <description>
+    Runs javancss on system
+    Invocation: ant -f javancss.build.xml
+  </description>
+
+  <import file="build.xml" />
+  <property name="javancss.version" value="30.51" />
+  <property name="javancss.dir" location="${build.dir}/javancss" />
+  <property name="javancss.abortOnFail" value="false" />
+
+  <!-- Initializations for Ivy-based download of JavaNCSS -->
+  <property name="javancss.install.dir" location="${lib.dir}/javancss" />
+  
+  <target name="install-javancss" depends="install-ivy">
+    <ivy:retrieve module="javancss" organisation="de.kclee" revision="${javancss.version}" pattern="${lib.dir}/javancss/[artifact].[ext]" sync="true" inline="true" log="download-only" type="jar,report" />
+  </target>
+    
+  <target name="javancss" depends="javancss.tool, javancss.report" description="Runs the Javancss tool and report." />
+
+  <target name="javancss.tool" depends="compile, install-javancss" description="Runs Javancss over the byte code to check for problems.">
+    <taskdef name="javancss" classname="javancss.JavancssAntTask">
+      <classpath>
+        <fileset dir="${javancss.install.dir}" includes="*.jar" />
+      </classpath>
+    </taskdef>
+    <!-- Run Javancss. -->
+    <mkdir dir="${javancss.dir}" />
+    <javancss generateReport="true" abortOnFail="${javancss.abortOnFail}" srcdir="${src.dir}" includes="**/*.java" outputfile="${javancss.dir}/javancss.xml" format="xml">
+    </javancss>
+  </target>
+
+  <target name="javancss.report" description="Generate an HTML report on Javancss.">
+    <xslt in="${javancss.dir}/javancss.xml" style="${javancss.install.dir}/javancss2html.xsl" out="${javancss.dir}/javancss-default.html" />
+  </target>
+</project>
+
+
+
